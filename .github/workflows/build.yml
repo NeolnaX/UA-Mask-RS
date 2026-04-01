@@ -15,19 +15,19 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             artifact: x86_64
-            gcc: gcc-x86_64-linux-gnu
+            packages: ""
           - target: aarch64-unknown-linux-gnu
             artifact: aarch64
-            gcc: gcc-aarch64-linux-gnu
+            packages: gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
           - target: arm-unknown-linux-gnueabihf
             artifact: armv7
-            gcc: gcc-arm-linux-gnueabihf
+            packages: gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf
           - target: mipsel-unknown-linux-gnu
             artifact: mipsel
-            gcc: gcc-mipsel-linux-gnu
+            packages: gcc-mipsel-linux-gnu binutils-mipsel-linux-gnu
           - target: mips-unknown-linux-gnu
             artifact: mips
-            gcc: gcc-mips-linux-gnu
+            packages: gcc-mips-linux-gnu binutils-mips-linux-gnu
 
     steps:
       - name: Checkout code
@@ -40,15 +40,16 @@ jobs:
         run: rustup target add ${{ matrix.target }}
 
       - name: Install cross compilation tools
+        if: matrix.packages != ''
         run: |
           sudo apt-get update
-          sudo apt-get install -y ${{ matrix.gcc }} binutils-${{ matrix.gcc }} qemu-user
+          sudo apt-get install -y ${{ matrix.packages }}
 
       - name: Build release
         env:
-          CARGO_TARGET_${{ matrix.target }}_LINKER: ${{ matrix.gcc }}
+          CARGO_TARGET_${{ matrix.target }}_LINKER: ${{ matrix.target }}-linux-gnu-gcc
         run: |
-          RUSTFLAGS="-C opt-level=3 -C lto -C linker=${{ matrix.gcc }}" \
+          RUSTFLAGS="-C opt-level=3 -C lto" \
           cargo build --release --target ${{ matrix.target }}
 
       - name: Rename binary
