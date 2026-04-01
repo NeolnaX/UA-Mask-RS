@@ -1,0 +1,32 @@
+# Build artifacts
+target/
+*.o
+*.a
+*.so
+*.dylib
+
+# Binary output
+files/UAmask-bin
+files/UAmask
+
+# OpenWrt
+*.ipk
+bin/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Secrets
+.env
+*.key
+*.pem

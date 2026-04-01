@@ -1,0 +1,75 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-musl
+          - aarch64-unknown-linux-musl
+          - armv7-unknown-linux-musleabihf
+          - mips-unknown-linux-musl
+          - mipsel-unknown-linux-musl
+        include:
+          - target: x86_64-unknown-linux-musl
+            artifact: x86_64
+          - target: aarch64-unknown-linux-musl
+            artifact: aarch64
+          - target: armv7-unknown-linux-musleabihf
+            artifact: armv7
+          - target: mips-unknown-linux-musl
+            artifact: mips
+          - target: mipsel-unknown-linux-musl
+            artifact: mipsel
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build release
+        run: |
+          RUSTFLAGS="-C opt-level=3 -C lto" \
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: Rename binary
+        run: |
+          mv target/${{ matrix.target }}/release/ua-mask files/UAmask-${{ matrix.artifact }}
+          chmod +x files/UAmask-${{ matrix.artifact }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: UAmask-${{ matrix.artifact }}
+          path: files/UAmask-${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

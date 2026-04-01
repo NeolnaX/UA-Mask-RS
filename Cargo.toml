@@ -1,0 +1,29 @@
+[package]
+name = "ua-mask"
+version = "0.5.0"
+edition = "2021"
+authors = ["UA-Mask Contributors"]
+description = "High-performance User-Agent modification proxy for OpenWrt"
+license = "MIT"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+httparse = "1"
+lru = "0.12"
+clap = { version = "4", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "time"] }
+tracing-appender = "0.2"
+nix = { version = "0.27", features = ["socket", "net", "ioctl"] }
+regex = "1"
+bytes = "1"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.release-lto]
+inherits = "release"
+lto = "fat"
