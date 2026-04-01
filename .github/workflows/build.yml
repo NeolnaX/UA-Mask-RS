@@ -12,22 +12,16 @@ jobs:
     strategy:
       matrix:
         target:
-          - x86_64-unknown-linux-musl
-          - aarch64-unknown-linux-musl
-          - armv7-unknown-linux-musleabihf
-          - mips-unknown-linux-musl
-          - mipsel-unknown-linux-musl
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+          - arm-unknown-linux-gnueabihf
         include:
-          - target: x86_64-unknown-linux-musl
+          - target: x86_64-unknown-linux-gnu
             artifact: x86_64
-          - target: aarch64-unknown-linux-musl
+          - target: aarch64-unknown-linux-gnu
             artifact: aarch64
-          - target: armv7-unknown-linux-musleabihf
+          - target: arm-unknown-linux-gnueabihf
             artifact: armv7
-          - target: mips-unknown-linux-musl
-            artifact: mips
-          - target: mipsel-unknown-linux-musl
-            artifact: mipsel
 
     steps:
       - name: Checkout code
@@ -46,6 +40,7 @@ jobs:
 
       - name: Rename binary
         run: |
+          mkdir -p files
           mv target/${{ matrix.target }}/release/ua-mask files/UAmask-${{ matrix.artifact }}
           chmod +x files/UAmask-${{ matrix.artifact }}
 
