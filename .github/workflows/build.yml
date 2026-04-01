@@ -22,6 +22,12 @@ jobs:
           - target: arm-unknown-linux-gnueabihf
             artifact: armv7
             gcc: gcc-arm-linux-gnueabihf
+          - target: mipsel-unknown-linux-gnu
+            artifact: mipsel
+            gcc: gcc-mipsel-linux-gnu
+          - target: mips-unknown-linux-gnu
+            artifact: mips
+            gcc: gcc-mips-linux-gnu
 
     steps:
       - name: Checkout code
@@ -36,7 +42,7 @@ jobs:
       - name: Install cross compilation tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y ${{ matrix.gcc }} binutils-${{ matrix.gcc }}
+          sudo apt-get install -y ${{ matrix.gcc }} binutils-${{ matrix.gcc }} qemu-user
 
       - name: Build release
         env:
