@@ -10,12 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        target:
-          - x86_64-unknown-linux-gnu
         include:
           - target: x86_64-unknown-linux-gnu
             artifact: x86_64
+          - target: aarch64-unknown-linux-gnu
+            artifact: aarch64
 
     steps:
       - name: Checkout code
@@ -26,6 +27,12 @@ jobs:
 
       - name: Add target
         run: rustup target add ${{ matrix.target }}
+
+      - name: Install cross compilation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-${{ matrix.target }} binutils-${{ matrix.target }}
+          echo "CARGO_TARGET_$(echo ${{ matrix.target }} | tr '-' '_')_LINKER=${{ matrix.target }}-gcc" >> $GITHUB_ENV
 
       - name: Build release
         run: |
